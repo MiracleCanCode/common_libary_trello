@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// const REQUEST_ID_KEY = "request_id"
 const loggerKey = "logger"
 
 func WithLogger(ctx context.Context, logger *zap.Logger) context.Context {
