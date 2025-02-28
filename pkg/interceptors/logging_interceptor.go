@@ -16,13 +16,26 @@ func LoggerInterceptor(
 	handler grpc.UnaryHandler,
 ) (any, error) {
 	requestID := uuid.New().String()
-	log := logger.GetLogger(ctx)
+	_ = logger.SetRequestID(ctx, requestID)
+	log := logger.NewLoggerWithRequestID(ctx)
 
-	log.Info("request", zap.String("request_id", requestID),
+	log.Info("request",
 		zap.String("method", info.FullMethod),
 		zap.Time("request_time", time.Now()),
 	)
 
+	resStartTime := time.Now()
 	res, err := handler(ctx, req)
+	if err != nil {
+		log.Error("Failed create response",
+			zap.String("method", info.FullMethod),
+		)
+	}
+
+	log.Info("response",
+		zap.String("method", info.FullMethod),
+		zap.Duration("response_time", time.Since(resStartTime)),
+	)
+
 	return res, err
 }
